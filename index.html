@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -279,7 +278,8 @@
 
 <script>
 // State
-let cfg = {discord:'',cloud:'',cloudEnabled:false,botName:'Hold-My-Load Bot',botAvatar:''};
+let cfg = JSON.parse(localStorage.getItem('hml-cfg') || '{}');
+cfg = Object.assign({discord:'',cloud:'',cloudEnabled:false,botName:'Hold-My-Load Bot',botAvatar:''}, cfg);
 let severity = 'info';
 let uploadedImgs = [];
 
@@ -298,7 +298,9 @@ function saveConfig() {
   cfg.cloud = document.getElementById('cloudUrl').value.trim();
   cfg.botName = document.getElementById('botName').value.trim() || 'Hold-My-Load Bot';
   cfg.botAvatar = document.getElementById('botAvatar').value.trim();
-  showStatus('discordStatus','✅ Config saved!','ok');
+  cfg.cloudEnabled = document.getElementById('cloudToggle').checked;
+  localStorage.setItem('hml-cfg', JSON.stringify(cfg));
+  showStatus('discordStatus','✅ Config saved & remembered!','ok');
   updateCloudButtons();
 }
 
@@ -479,6 +481,92 @@ REM ==========================================
 DELAY 500
 
 REM Open Run dialog (Windows)
+GUI r
+DELAY 400
+STRING powershell
+ENTER
+DELAY 800
+
+REM Type a command
+STRING Write-Host "Hold-My-Load script running..."
+ENTER
+DELAY 500
+
+REM Close
+STRING exit
+ENTER`;
+  showStatus('duckyStatus','📋 Template loaded!','info');
+}
+
+// Images
+function dragOver(e){e.preventDefault();document.getElementById('dropzone').classList.add('drag')}
+function dragLeave(){document.getElementById('dropzone').classList.remove('drag')}
+function dropFile(e){e.preventDefault();dragLeave();handleImgs(e.dataTransfer.files)}
+
+function handleImgs(files) {
+  Array.from(files).forEach(f => {
+    if(!f.type.startsWith('image/')) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      uploadedImgs.push({name:f.name, data:ev.target.result, type:f.type});
+      renderImgs();
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function renderImgs() {
+  const grid = document.getElementById('imgGrid');
+  grid.innerHTML = '';
+  uploadedImgs.forEach((img,i) => {
+    const d = document.createElement('div');
+    d.className = 'img-thumb';
+    d.innerHTML = `<img src="${img.data}" title="${img.name}"/><button class="rm" onclick="removeImg(${i})">✕</button>`;
+    d.querySelector('img').onclick = () => { document.getElementById('imgUrl').value = img.data; };
+    grid.appendChild(d);
+  });
+  document.getElementById('imgSendCard').style.display = uploadedImgs.length ? 'block' : 'none';
+}
+
+function removeImg(i) { uploadedImgs.splice(i,1); renderImgs(); }
+
+async function sendImage() {
+  const url = document.getElementById('imgUrl').value.trim();
+  const caption = document.getElementById('imgCaption').value.trim();
+  if(!url){showStatus('imgStatus','⚠️ No image URL provided','err');return;}
+  const bn = document.getElementById('botName')?.value || 'Hold-My-Load Bot';
+  const payload = {
+    username: bn,
+    embeds:[{
+      description: caption || null,
+      image:{url},
+      color: sevColors['info'],
+      footer:{text:'Hold-My-Load Image • '+new Date().toLocaleString()},
+      timestamp: new Date().toISOString()
+    }]
+  };
+  showStatus('imgStatus','🔄 Sending...','info');
+  const r = await postDiscord(payload);
+  showStatus('imgStatus', r.ok ? '✅ Image sent to Discord!' : '❌ '+r.err, r.ok?'ok':'err');
+}
+
+// Init
+loadTemplate('down');
+updatePreview();
+
+// Restore saved config
+if(cfg.discord) document.getElementById('discordUrl').value = cfg.discord;
+if(cfg.cloud) document.getElementById('cloudUrl').value = cfg.cloud;
+if(cfg.botName) document.getElementById('botName').value = cfg.botName;
+if(cfg.botAvatar) document.getElementById('botAvatar').value = cfg.botAvatar;
+if(cfg.cloudEnabled){
+  document.getElementById('cloudToggle').checked = true;
+  toggleCloud();
+}
+updateCloudButtons();
+</script>
+</body>
+</html>
 GUI r
 DELAY 400
 STRING powershell
