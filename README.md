@@ -1,4 +1,4 @@
-# 🔥 Hold-My-Load
+# Hold-My-Load
 
 > **Webhook Alert Dashboard — Built different.**
 
