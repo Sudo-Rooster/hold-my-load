@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Hold-My-Load</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--surface3:#252525;
+    --orange:#ff6a00;--orange2:#ff8c00;--orange-glow:rgba(255,106,0,0.15);
+    --text:#f0f0f0;--text2:#aaa;--text3:#666;
+    --green:#00e676;--yellow:#ffd600;--red:#ff1744;
+    --border:#2a2a2a;--radius:8px;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+  header{background:var(--surface);border-bottom:2px solid var(--orange);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+  header .logo{font-size:1.4rem;font-weight:800;color:var(--orange);letter-spacing:1px;text-shadow:0 0 16px var(--orange)}
+  header .sub{font-size:.75rem;color:var(--text3);margin-top:2px}
+  nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+  nav button{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.8rem;transition:all .2s}
+  nav button:hover,nav button.active{background:var(--orange);border-color:var(--orange);color:#000;font-weight:600}
+  main{max-width:1100px;margin:0 auto;padding:24px 16px}
+  .tab{display:none}.tab.active{display:block}
+  h2{font-size:1rem;color:var(--orange);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  h2::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange);border-radius:2px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+  label{display:block;font-size:.78rem;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+  input[type=text],input[type=url],textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:.88rem;outline:none;transition:border .2s;font-family:inherit}
+  input[type=text]:focus,input[type=url]:focus,textarea:focus,select:focus{border-color:var(--orange)}
+  textarea{resize:vertical;min-height:100px}
+  select option{background:var(--surface2)}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+  .btn-primary{background:var(--orange);color:#000}.btn-primary:hover{background:var(--orange2);box-shadow:0 0 12px var(--orange-glow)}
+  .btn-outline{background:transparent;border:1px solid var(--orange);color:var(--orange)}.btn-outline:hover{background:var(--orange-glow)}
+  .btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--orange);color:var(--text)}
+  .btn-danger{background:#2a0a0a;color:var(--red);border:1px solid var(--red)}.btn-danger:hover{background:var(--red);color:#fff}
+  .btn-success{background:#0a2a1a;color:var(--green);border:1px solid var(--green)}.btn-success:hover{background:var(--green);color:#000}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .status{padding:8px 14px;border-radius:6px;font-size:.82rem;margin-top:10px;display:none}
+  .status.ok{background:#0a2a1a;border:1px solid var(--green);color:var(--green);display:block}
+  .status.err{background:#2a0a0a;border:1px solid var(--red);color:var(--red);display:block}
+  .status.info{background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange);display:block}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700}
+  .badge-info{background:#0a1a2a;color:#29b6f6;border:1px solid #29b6f6}
+  .badge-warn{background:#2a1a00;color:var(--yellow);border:1px solid var(--yellow)}
+  .badge-crit{background:#2a0a0a;color:var(--red);border:1px solid var(--red)}
+  /* Discord Preview */
+  .discord-preview{background:#36393f;border-radius:8px;padding:16px;border-left:4px solid var(--orange);font-family:'Segoe UI',sans-serif}
+  .dp-title{font-weight:700;font-size:.95rem;color:#fff;margin-bottom:6px}
+  .dp-desc{font-size:.85rem;color:#dcddde;line-height:1.5}
+  .dp-footer{font-size:.72rem;color:#72767d;margin-top:8px}
+  /* JSON Editor */
+  .json-editor{background:#111;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:.82rem;color:#a8ff78;min-height:140px;resize:vertical;width:100%;outline:none}
+  .json-editor:focus{border-color:var(--orange)}
+  /* Templates */
+  .tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+  .tpl-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px;border-radius:6px;cursor:pointer;text-align:left;font-size:.8rem;transition:all .2s}
+  .tpl-btn:hover{border-color:var(--orange);color:var(--text)}
+  .tpl-btn .tpl-icon{font-size:1.3rem;margin-bottom:4px}
+  /* Ducky */
+  .ducky-editor{background:#0d0d0d;border:1px solid var(--border);color:#a8ff78;font-family:'Courier New',monospace;font-size:.85rem;min-height:260px;padding:14px;border-radius:6px;resize:vertical;width:100%;outline:none;line-height:1.7}
+  .ducky-editor:focus{border-color:var(--orange)}
+  .ducky-hints{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .ducky-hint{background:var(--surface2);border:1px solid var(--border);color:var(--orange);padding:4px 10px;border-radius:4px;font-size:.75rem;cursor:pointer;font-family:monospace}
+  .ducky-hint:hover{background:var(--orange-glow)}
+  /* Image */
+  .dropzone{border:2px dashed var(--border);border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3)}
+  .dropzone:hover,.dropzone.drag{border-color:var(--orange);background:var(--orange-glow);color:var(--text2)}
+  .img-preview-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .img-thumb{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+  .img-thumb img{width:120px;height:90px;object-fit:cover;display:block}
+  .img-thumb .rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:var(--red);border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+  /* Toggle */
+  .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .toggle{position:relative;width:40px;height:22px}
+  .toggle input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--surface3);border-radius:22px;cursor:pointer;transition:.3s}
+  .slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--text3);border-radius:50%;transition:.3s}
+  input:checked+.slider{background:var(--orange)}
+  input:checked+.slider:before{transform:translateX(18px);background:#000}
+  /* Severity selector */
+  .sev-btns{display:flex;gap:8px;margin-bottom:12px}
+  .sev-btn{padding:6px 14px;border-radius:4px;border:1px solid;cursor:pointer;font-size:.8rem;font-weight:600;background:transparent;transition:all .2s}
+  .sev-btn.info{border-color:#29b6f6;color:#29b6f6}.sev-btn.info.sel,.sev-btn.info:hover{background:#29b6f6;color:#000}
+  .sev-btn.warning{border-color:var(--yellow);color:var(--yellow)}.sev-btn.warning.sel,.sev-btn.warning:hover{background:var(--yellow);color:#000}
+  .sev-btn.critical{border-color:var(--red);color:var(--red)}.sev-btn.critical.sel,.sev-btn.critical:hover{background:var(--red);color:#fff}
+  .row{display:flex;gap:12px;align-items:flex-end}
+  .row>*{flex:1}
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--surface)}
+  ::-webkit-scrollbar-thumb{background:var(--orange);border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">🔥 Hold-My-Load</div>
+    <div class="sub">Webhook Alert Dashboard</div>
+  </div>
+  <nav>
+    <button class="active" onclick="showTab('config',this)">⚙️ Config</button>
+    <button onclick="showTab('builder',this)">✉️ Builder</button>
+    <button onclick="showTab('payload',this)">📦 Payload</button>
+    <button onclick="showTab('ducky',this)">🦆 Ducky</button>
+    <button onclick="showTab('images',this)">🖼️ Images</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- CONFIG -->
+<div id="tab-config" class="tab active">
+  <h2>Configuration</h2>
+  <div class="card">
+    <label>Discord Webhook URL</label>
+    <input type="url" id="discordUrl" placeholder="https://discord.com/api/webhooks/..."/>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="saveConfig()">💾 Save</button>
+      <button class="btn btn-outline" onclick="testDiscord()">🔌 Test Discord</button>
+    </div>
+    <div id="discordStatus" class="status"></div>
+  </div>
+  <div class="card">
+    <div class="toggle-row">
+      <label style="margin:0">Private Cloud Endpoint</label>
+      <label class="toggle"><input type="checkbox" id="cloudToggle" onchange="toggleCloud()"/><span class="slider"></span></label>
+      <span id="cloudToggleLabel" style="font-size:.78rem;color:var(--text3)">Disabled</span>
+    </div>
+    <div id="cloudSection" style="display:none">
+      <label>Cloud Endpoint URL</label>
+      <input type="url" id="cloudUrl" placeholder="https://your-cloud-endpoint.com/alert"/>
+      <div class="btns">
+        <button class="btn btn-outline" onclick="testCloud()">🔌 Test Cloud</button>
+      </div>
+      <div id="cloudStatus" class="status"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Bot Identity</h2>
+    <div class="grid2">
+      <div><label>Bot Username</label><input type="text" id="botName" placeholder="Hold-My-Load Bot" value="Hold-My-Load Bot"/></div>
+      <div><label>Avatar URL (optional)</label><input type="url" id="botAvatar" placeholder="https://..."/></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUILDER -->
+<div id="tab-builder" class="tab">
+  <h2>Message Builder</h2>
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <label>Event Name</label>
+        <input type="text" id="evtName" placeholder="e.g. Server Down" oninput="updatePreview()"/>
+        <br><br>
+        <label>Severity</label>
+        <div class="sev-btns">
+          <button class="sev-btn info sel" onclick="setSev('info',this)">ℹ️ Info</button>
+          <button class="sev-btn warning" onclick="setSev('warning',this)">⚠️ Warning</button>
+          <button class="sev-btn critical" onclick="setSev('critical',this)">🚨 Critical</button>
+        </div>
+        <label>Message</label>
+        <textarea id="evtMsg" placeholder="Describe the alert..." oninput="updatePreview()"></textarea>
+        <br>
+        <label>Footer Note (optional)</label>
+        <input type="text" id="evtFooter" placeholder="e.g. Auto-alert from Hold-My-Load" oninput="updatePreview()"/>
+        <div class="btns">
+          <button class="btn btn-primary" onclick="sendBuilder('discord')">📤 Send to Discord</button>
+          <button class="btn btn-outline" onclick="sendBuilder('cloud')" id="cloudBtn" style="display:none">☁️ Send to Cloud</button>
+          <button class="btn btn-ghost" onclick="sendBuilder('both')" id="bothBtn" style="display:none">🔀 Send Both</button>
+        </div>
+        <div id="builderStatus" class="status"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <label>Discord Preview</label>
+        <div class="discord-preview" id="discordPreview">
+          <div class="dp-title" id="prev-title">Event Name</div>
+          <div class="dp-desc" id="prev-desc">Your message will appear here...</div>
+          <div class="dp-footer" id="prev-footer">Hold-My-Load • Just now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYLOAD -->
+<div id="tab-payload" class="tab">
+  <h2>Payload Generator</h2>
+  <div class="card">
+    <label>Quick Templates</label>
+    <div class="tpl-grid">
+      <div class="tpl-btn" onclick="loadTemplate('down')"><div class="tpl-icon">🔴</div>Server Down</div>
+      <div class="tpl-btn" onclick="loadTemplate('cpu')"><div class="tpl-icon">💻</div>High CPU</div>
+      <div class="tpl-btn" onclick="loadTemplate('mem')"><div class="tpl-icon">🧠</div>Memory Alert</div>
+      <div class="tpl-btn" onclick="loadTemplate('deploy')"><div class="tpl-icon">🚀</div>Deployment</div>
+      <div class="tpl-btn" onclick="loadTemplate('breach')"><div class="tpl-icon">🔐</div>Auth Breach</div>
+      <div class="tpl-btn" onclick="loadTemplate('custom')"><div class="tpl-icon">✏️</div>Custom Event</div>
+    </div>
+  </div>
+  <div class="card">
+    <label>Raw JSON Payload Editor</label>
+    <textarea class="json-editor" id="jsonEditor" spellcheck="false"></textarea>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="sendRaw('discord')">📤 Send to Discord</button>
+      <button class="btn btn-outline" onclick="sendRaw('cloud')" id="rawCloudBtn" style="display:none">☁️ Send to Cloud</button>
+      <button class="btn btn-ghost" onclick="copyJson()">📋 Copy JSON</button>
+      <button class="btn btn-ghost" onclick="formatJson()">✨ Format</button>
+    </div>
+    <div id="rawStatus" class="status"></div>
+  </div>
+</div>
+
+<!-- DUCKY -->
+<div id="tab-ducky" class="tab">
+  <h2>Ducky Script Editor</h2>
+  <div class="card">
+    <label>Quick Insert</label>
+    <div class="ducky-hints">
+      <span class="ducky-hint" onclick="dInsert('DELAY 1000')">DELAY</span>
+      <span class="ducky-hint" onclick="dInsert('STRING ')">STRING</span>
+      <span class="ducky-hint" onclick="dInsert('ENTER')">ENTER</span>
+      <span class="ducky-hint" onclick="dInsert('GUI r')">GUI r</span>
+      <span class="ducky-hint" onclick="dInsert('GUI SPACE')">GUI SPACE</span>
+      <span class="ducky-hint" onclick="dInsert('CTRL c')">CTRL c</span>
+      <span class="ducky-hint" onclick="dInsert('CTRL v')">CTRL v</span>
+      <span class="ducky-hint" onclick="dInsert('ALT F4')">ALT F4</span>
+      <span class="ducky-hint" onclick="dInsert('TAB')">TAB</span>
+      <span class="ducky-hint" onclick="dInsert('ESCAPE')">ESCAPE</span>
+      <span class="ducky-hint" onclick="dInsert('UPARROW')">↑</span>
+      <span class="ducky-hint" onclick="dInsert('DOWNARROW')">↓</span>
+      <span class="ducky-hint" onclick="dInsert('REM ')">REM (comment)</span>
+      <span class="ducky-hint" onclick="dInsert('REPEAT 5')">REPEAT</span>
+    </div>
+    <textarea class="ducky-editor" id="duckyEditor" placeholder="REM Hold-My-Load Ducky Script&#10;DELAY 500&#10;GUI r&#10;DELAY 400&#10;STRING notepad&#10;ENTER&#10;DELAY 600&#10;STRING Hello from Hold-My-Load!&#10;ENTER"></textarea>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="downloadDucky()">💾 Download .txt</button>
+      <button class="btn btn-ghost" onclick="clearDucky()">🗑️ Clear</button>
+      <button class="btn btn-outline" onclick="loadDuckyTemplate()">📋 Load Template</button>
+    </div>
+    <div id="duckyStatus" class="status"></div>
+  </div>
+</div>
+
+<!-- IMAGES -->
+<div id="tab-images" class="tab">
+  <h2>Image Utility</h2>
+  <div class="card">
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('imgInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <div style="font-size:2rem;margin-bottom:8px">🖼️</div>
+      <div>Drop images here or click to upload</div>
+      <div style="font-size:.75rem;margin-top:4px;color:var(--text3)">PNG, JPG, GIF, WEBP supported</div>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="handleImgs(this.files)"/>
+    <div class="img-preview-grid" id="imgGrid"></div>
+  </div>
+  <div class="card" id="imgSendCard" style="display:none">
+    <label>Send Image to Discord</label>
+    <div style="font-size:.82rem;color:var(--text2);margin-bottom:10px">Images will be sent as embed URLs. Select an image below to get its data URL or paste a public URL.</div>
+    <label>Public Image URL (optional)</label>
+    <input type="url" id="imgUrl" placeholder="https://i.imgur.com/..."/>
+    <label style="margin-top:10px">Caption</label>
+    <input type="text" id="imgCaption" placeholder="Optional caption for the image"/>
+    <div class="btns">
+      <button class="btn btn-primary" onclick="sendImage()">📤 Send to Discord</button>
+    </div>
+    <div id="imgStatus" class="status"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// State
+let cfg = {discord:'',cloud:'',cloudEnabled:false,botName:'Hold-My-Load Bot',botAvatar:''};
+let severity = 'info';
+let uploadedImgs = [];
+
+const sevColors = {info:0x29b6f6, warning:0xffd600, critical:0xff1744};
+const sevEmoji = {info:'ℹ️', warning:'⚠️', critical:'🚨'};
+
+function showTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  btn.classList.add('active');
+}
+
+function saveConfig() {
+  cfg.discord = document.getElementById('discordUrl').value.trim();
+  cfg.cloud = document.getElementById('cloudUrl').value.trim();
+  cfg.botName = document.getElementById('botName').value.trim() || 'Hold-My-Load Bot';
+  cfg.botAvatar = document.getElementById('botAvatar').value.trim();
+  showStatus('discordStatus','✅ Config saved!','ok');
+  updateCloudButtons();
+}
+
+function toggleCloud() {
+  cfg.cloudEnabled = document.getElementById('cloudToggle').checked;
+  document.getElementById('cloudSection').style.display = cfg.cloudEnabled ? 'block' : 'none';
+  document.getElementById('cloudToggleLabel').textContent = cfg.cloudEnabled ? 'Enabled' : 'Disabled';
+  updateCloudButtons();
+}
+
+function updateCloudButtons() {
+  ['cloudBtn','bothBtn','rawCloudBtn'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = cfg.cloudEnabled ? 'inline-flex' : 'none';
+  });
+}
+
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  setTimeout(()=>el.className='status', 4000);
+}
+
+async function postDiscord(payload) {
+  const url = document.getElementById('discordUrl').value.trim() || cfg.discord;
+  if (!url) return {ok:false, err:'No Discord webhook URL set. Go to Config tab.'};
+  try {
+    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    return {ok: r.ok, err: r.ok ? '' : `HTTP ${r.status}`};
+  } catch(e) { return {ok:false, err: e.message}; }
+}
+
+async function postCloud(payload) {
+  const url = document.getElementById('cloudUrl').value.trim() || cfg.cloud;
+  if (!url) return {ok:false, err:'No cloud URL set.'};
+  try {
+    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    return {ok: r.ok, err: r.ok ? '' : `HTTP ${r.status}`};
+  } catch(e) { return {ok:false, err: e.message}; }
+}
+
+async function testDiscord() {
+  showStatus('discordStatus','🔄 Testing...','info');
+  const p = buildEmbed('Test','Connection test from Hold-My-Load ✅','info','Hold-My-Load Test');
+  const r = await postDiscord(p);
+  showStatus('discordStatus', r.ok ? '✅ Discord connected!' : '❌ '+r.err, r.ok?'ok':'err');
+}
+
+async function testCloud() {
+  showStatus('cloudStatus','🔄 Testing...','info');
+  const r = await postCloud({test:true, source:'Hold-My-Load'});
+  showStatus('cloudStatus', r.ok ? '✅ Cloud connected!' : '❌ '+r.err, r.ok?'ok':'err');
+}
+
+function setSev(s, btn) {
+  severity = s;
+  document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updatePreview();
+  // Update preview border color
+  const colors = {info:'#29b6f6', warning:'#ffd600', critical:'#ff1744'};
+  document.querySelector('.discord-preview').style.borderLeftColor = colors[s];
+}
+
+function buildEmbed(title, desc, sev, footer) {
+  const bn = document.getElementById('botName')?.value || cfg.botName;
+  const ba = document.getElementById('botAvatar')?.value || cfg.botAvatar;
+  const payload = {
+    username: bn,
+    embeds: [{
+      title: `${sevEmoji[sev]} ${title}`,
+      description: desc,
+      color: sevColors[sev],
+      footer: {text: footer || 'Hold-My-Load • ' + new Date().toLocaleString()},
+      timestamp: new Date().toISOString()
+    }]
+  };
+  if(ba) payload.avatar_url = ba;
+  return payload;
+}
+
+function updatePreview() {
+  const title = document.getElementById('evtName').value || 'Event Name';
+  const msg = document.getElementById('evtMsg').value || 'Your message will appear here...';
+  const footer = document.getElementById('evtFooter').value || 'Hold-My-Load • Just now';
+  document.getElementById('prev-title').textContent = `${sevEmoji[severity]} ${title}`;
+  document.getElementById('prev-desc').textContent = msg;
+  document.getElementById('prev-footer').textContent = footer;
+}
+
+async function sendBuilder(dest) {
+  const title = document.getElementById('evtName').value || 'Alert';
+  const msg = document.getElementById('evtMsg').value || '(no message)';
+  const footer = document.getElementById('evtFooter').value;
+  const payload = buildEmbed(title, msg, severity, footer);
+  showStatus('builderStatus','🔄 Sending...','info');
+  let r1={ok:true},r2={ok:true};
+  if(dest==='discord'||dest==='both') r1 = await postDiscord(payload);
+  if((dest==='cloud'||dest==='both')&&cfg.cloudEnabled) r2 = await postCloud(payload);
+  const ok = r1.ok && r2.ok;
+  showStatus('builderStatus', ok ? '✅ Sent successfully!' : `❌ ${r1.err||r2.err}`, ok?'ok':'err');
+}
+
+const templates = {
+  down: {title:'🔴 Server Down',description:'The server is unreachable. Immediate attention required.',color:0xff1744},
+  cpu:  {title:'💻 High CPU Usage',description:'CPU usage has exceeded 90% for the last 5 minutes.',color:0xffd600},
+  mem:  {title:'🧠 Memory Alert',description:'Available memory is critically low (< 5% free).',color:0xffd600},
+  deploy:{title:'🚀 Deployment Complete',description:'New build deployed successfully to production.',color:0x29b6f6},
+  breach:{title:'🔐 Auth Breach Detected',description:'Multiple failed login attempts detected from unknown IP.',color:0xff1744},
+  custom:{title:'✏️ Custom Event',description:'Add your custom event description here.',color:0xff6a00}
+};
+
+function loadTemplate(t) {
+  const tpl = templates[t];
+  const bn = document.getElementById('botName')?.value || 'Hold-My-Load Bot';
+  const payload = {
+    username: bn,
+    embeds:[{...tpl, footer:{text:'Hold-My-Load • '+new Date().toLocaleString()}, timestamp: new Date().toISOString()}]
+  };
+  document.getElementById('jsonEditor').value = JSON.stringify(payload, null, 2);
+}
+
+async function sendRaw(dest) {
+  showStatus('rawStatus','🔄 Sending...','info');
+  let payload;
+  try { payload = JSON.parse(document.getElementById('jsonEditor').value); }
+  catch(e) { showStatus('rawStatus','❌ Invalid JSON: '+e.message,'err'); return; }
+  let r1={ok:true},r2={ok:true};
+  if(dest==='discord'||dest==='both') r1 = await postDiscord(payload);
+  if((dest==='cloud'||dest==='both')&&cfg.cloudEnabled) r2 = await postCloud(payload);
+  const ok = r1.ok && r2.ok;
+  showStatus('rawStatus', ok ? '✅ Sent!' : `❌ ${r1.err||r2.err}`, ok?'ok':'err');
+}
+
+function copyJson() {
+  navigator.clipboard.writeText(document.getElementById('jsonEditor').value);
+  showStatus('rawStatus','📋 Copied to clipboard!','info');
+}
+
+function formatJson() {
+  try {
+    const p = JSON.parse(document.getElementById('jsonEditor').value);
+    document.getElementById('jsonEditor').value = JSON.stringify(p, null, 2);
+  } catch(e) { showStatus('rawStatus','❌ Invalid JSON','err'); }
+}
+
+// Ducky
+function dInsert(cmd) {
+  const ta = document.getElementById('duckyEditor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const v = ta.value;
+  ta.value = v.substring(0,s) + (s===e||v[s-1]==='\n'?'':'\n') + cmd + '\n' + v.substring(e);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = s + cmd.length + 2;
+}
+
+function downloadDucky() {
+  const txt = document.getElementById('duckyEditor').value;
+  if(!txt.trim()){ showStatus('duckyStatus','⚠️ Editor is empty','err'); return; }
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txt);
+  a.download = 'hold-my-load-script.txt';
+  a.click();
+  showStatus('duckyStatus','✅ Script downloaded!','ok');
+}
+
+function clearDucky() {
+  document.getElementById('duckyEditor').value = '';
+  showStatus('duckyStatus','🗑️ Cleared','info');
+}
+
+function loadDuckyTemplate() {
+  document.getElementById('duckyEditor').value =
+`REM ==========================================
+REM  Hold-My-Load - Ducky Script Template
+REM ==========================================
+DELAY 500
+
+REM Open Run dialog (Windows)
+GUI r
+DELAY 400
+STRING powershell
+ENTER
+DELAY 800
+
+REM Type a command
+STRING Write-Host "Hold-My-Load script running..."
+ENTER
+DELAY 500
+
+REM Close
+STRING exit
+ENTER`;
+  showStatus('duckyStatus','📋 Template loaded!','info');
+}
+
+// Images
+function dragOver(e){e.preventDefault();document.getElementById('dropzone').classList.add('drag')}
+function dragLeave(){document.getElementById('dropzone').classList.remove('drag')}
+function dropFile(e){e.preventDefault();dragLeave();handleImgs(e.dataTransfer.files)}
+
+function handleImgs(files) {
+  Array.from(files).forEach(f => {
+    if(!f.type.startsWith('image/')) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      uploadedImgs.push({name:f.name, data:ev.target.result, type:f.type});
+      renderImgs();
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function renderImgs() {
+  const grid = document.getElementById('imgGrid');
+  grid.innerHTML = '';
+  uploadedImgs.forEach((img,i) => {
+    const d = document.createElement('div');
+    d.className = 'img-thumb';
+    d.innerHTML = `<img src="${img.data}" title="${img.name}"/><button class="rm" onclick="removeImg(${i})">✕</button>`;
+    d.querySelector('img').onclick = () => { document.getElementById('imgUrl').value = img.data; };
+    grid.appendChild(d);
+  });
+  document.getElementById('imgSendCard').style.display = uploadedImgs.length ? 'block' : 'none';
+}
+
+function removeImg(i) { uploadedImgs.splice(i,1); renderImgs(); }
+
+async function sendImage() {
+  const url = document.getElementById('imgUrl').value.trim();
+  const caption = document.getElementById('imgCaption').value.trim();
+  if(!url){showStatus('imgStatus','⚠️ No image URL provided','err');return;}
+  const bn = document.getElementById('botName')?.value || 'Hold-My-Load Bot';
+  const payload = {
+    username: bn,
+    embeds:[{
+      description: caption || null,
+      image:{url},
+      color: sevColors['info'],
+      footer:{text:'Hold-My-Load Image • '+new Date().toLocaleString()},
+      timestamp: new Date().toISOString()
+    }]
+  };
+  showStatus('imgStatus','🔄 Sending...','info');
+  const r = await postDiscord(payload);
+  showStatus('imgStatus', r.ok ? '✅ Image sent to Discord!' : '❌ '+r.err, r.ok?'ok':'err');
+}
+
+// Init
+loadTemplate('down');
+updatePreview();
+</script>
+</body>
+</html>
