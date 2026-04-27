@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,37 +44,27 @@
   .status.ok{background:#0a2a1a;border:1px solid var(--green);color:var(--green);display:block}
   .status.err{background:#2a0a0a;border:1px solid var(--red);color:var(--red);display:block}
   .status.info{background:var(--orange-glow);border:1px solid var(--orange);color:var(--orange);display:block}
-  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700}
-  .badge-info{background:#0a1a2a;color:#29b6f6;border:1px solid #29b6f6}
-  .badge-warn{background:#2a1a00;color:var(--yellow);border:1px solid var(--yellow)}
-  .badge-crit{background:#2a0a0a;color:var(--red);border:1px solid var(--red)}
-  /* Discord Preview */
   .discord-preview{background:#36393f;border-radius:8px;padding:16px;border-left:4px solid var(--orange);font-family:'Segoe UI',sans-serif}
   .dp-title{font-weight:700;font-size:.95rem;color:#fff;margin-bottom:6px}
   .dp-desc{font-size:.85rem;color:#dcddde;line-height:1.5}
   .dp-footer{font-size:.72rem;color:#72767d;margin-top:8px}
-  /* JSON Editor */
   .json-editor{background:#111;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:.82rem;color:#a8ff78;min-height:140px;resize:vertical;width:100%;outline:none}
   .json-editor:focus{border-color:var(--orange)}
-  /* Templates */
   .tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
   .tpl-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px;border-radius:6px;cursor:pointer;text-align:left;font-size:.8rem;transition:all .2s}
   .tpl-btn:hover{border-color:var(--orange);color:var(--text)}
   .tpl-btn .tpl-icon{font-size:1.3rem;margin-bottom:4px}
-  /* Ducky */
   .ducky-editor{background:#0d0d0d;border:1px solid var(--border);color:#a8ff78;font-family:'Courier New',monospace;font-size:.85rem;min-height:260px;padding:14px;border-radius:6px;resize:vertical;width:100%;outline:none;line-height:1.7}
   .ducky-editor:focus{border-color:var(--orange)}
   .ducky-hints{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
   .ducky-hint{background:var(--surface2);border:1px solid var(--border);color:var(--orange);padding:4px 10px;border-radius:4px;font-size:.75rem;cursor:pointer;font-family:monospace}
   .ducky-hint:hover{background:var(--orange-glow)}
-  /* Image */
   .dropzone{border:2px dashed var(--border);border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3)}
   .dropzone:hover,.dropzone.drag{border-color:var(--orange);background:var(--orange-glow);color:var(--text2)}
   .img-preview-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
   .img-thumb{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
   .img-thumb img{width:120px;height:90px;object-fit:cover;display:block}
   .img-thumb .rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:var(--red);border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center}
-  /* Toggle */
   .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .toggle{position:relative;width:40px;height:22px}
   .toggle input{opacity:0;width:0;height:0}
@@ -81,15 +72,11 @@
   .slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--text3);border-radius:50%;transition:.3s}
   input:checked+.slider{background:var(--orange)}
   input:checked+.slider:before{transform:translateX(18px);background:#000}
-  /* Severity selector */
   .sev-btns{display:flex;gap:8px;margin-bottom:12px}
   .sev-btn{padding:6px 14px;border-radius:4px;border:1px solid;cursor:pointer;font-size:.8rem;font-weight:600;background:transparent;transition:all .2s}
   .sev-btn.info{border-color:#29b6f6;color:#29b6f6}.sev-btn.info.sel,.sev-btn.info:hover{background:#29b6f6;color:#000}
   .sev-btn.warning{border-color:var(--yellow);color:var(--yellow)}.sev-btn.warning.sel,.sev-btn.warning:hover{background:var(--yellow);color:#000}
   .sev-btn.critical{border-color:var(--red);color:var(--red)}.sev-btn.critical.sel,.sev-btn.critical:hover{background:var(--red);color:#fff}
-  .row{display:flex;gap:12px;align-items:flex-end}
-  .row>*{flex:1}
-  /* Scrollbar */
   ::-webkit-scrollbar{width:6px;height:6px}
   ::-webkit-scrollbar-track{background:var(--surface)}
   ::-webkit-scrollbar-thumb{background:var(--orange);border-radius:3px}
@@ -277,7 +264,6 @@
 </main>
 
 <script>
-// State
 let cfg = JSON.parse(localStorage.getItem('hml-cfg') || '{}');
 cfg = Object.assign({discord:'',cloud:'',cloudEnabled:false,botName:'Hold-My-Load Bot',botAvatar:''}, cfg);
 let severity = 'info';
@@ -361,7 +347,6 @@ function setSev(s, btn) {
   document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
   updatePreview();
-  // Update preview border color
   const colors = {info:'#29b6f6', warning:'#ffd600', critical:'#ff1744'};
   document.querySelector('.discord-preview').style.borderLeftColor = colors[s];
 }
@@ -406,9 +391,9 @@ async function sendBuilder(dest) {
 }
 
 const templates = {
-  down: {title:'🔴 Server Down',description:'The server is unreachable. Immediate attention required.',color:0xff1744},
-  cpu:  {title:'💻 High CPU Usage',description:'CPU usage has exceeded 90% for the last 5 minutes.',color:0xffd600},
-  mem:  {title:'🧠 Memory Alert',description:'Available memory is critically low (< 5% free).',color:0xffd600},
+  down:  {title:'🔴 Server Down',description:'The server is unreachable. Immediate attention required.',color:0xff1744},
+  cpu:   {title:'💻 High CPU Usage',description:'CPU usage has exceeded 90% for the last 5 minutes.',color:0xffd600},
+  mem:   {title:'🧠 Memory Alert',description:'Available memory is critically low (< 5% free).',color:0xffd600},
   deploy:{title:'🚀 Deployment Complete',description:'New build deployed successfully to production.',color:0x29b6f6},
   breach:{title:'🔐 Auth Breach Detected',description:'Multiple failed login attempts detected from unknown IP.',color:0xff1744},
   custom:{title:'✏️ Custom Event',description:'Add your custom event description here.',color:0xff6a00}
@@ -448,7 +433,6 @@ function formatJson() {
   } catch(e) { showStatus('rawStatus','❌ Invalid JSON','err'); }
 }
 
-// Ducky
 function dInsert(cmd) {
   const ta = document.getElementById('duckyEditor');
   const s = ta.selectionStart, e = ta.selectionEnd;
@@ -498,7 +482,6 @@ ENTER`;
   showStatus('duckyStatus','📋 Template loaded!','info');
 }
 
-// Images
 function dragOver(e){e.preventDefault();document.getElementById('dropzone').classList.add('drag')}
 function dragLeave(){document.getElementById('dropzone').classList.remove('drag')}
 function dropFile(e){e.preventDefault();dragLeave();handleImgs(e.dataTransfer.files)}
@@ -553,8 +536,6 @@ async function sendImage() {
 // Init
 loadTemplate('down');
 updatePreview();
-
-// Restore saved config
 if(cfg.discord) document.getElementById('discordUrl').value = cfg.discord;
 if(cfg.cloud) document.getElementById('cloudUrl').value = cfg.cloud;
 if(cfg.botName) document.getElementById('botName').value = cfg.botName;
@@ -564,81 +545,6 @@ if(cfg.cloudEnabled){
   toggleCloud();
 }
 updateCloudButtons();
-</script>
-</body>
-</html>
-GUI r
-DELAY 400
-STRING powershell
-ENTER
-DELAY 800
-
-REM Type a command
-STRING Write-Host "Hold-My-Load script running..."
-ENTER
-DELAY 500
-
-REM Close
-STRING exit
-ENTER`;
-  showStatus('duckyStatus','📋 Template loaded!','info');
-}
-
-// Images
-function dragOver(e){e.preventDefault();document.getElementById('dropzone').classList.add('drag')}
-function dragLeave(){document.getElementById('dropzone').classList.remove('drag')}
-function dropFile(e){e.preventDefault();dragLeave();handleImgs(e.dataTransfer.files)}
-
-function handleImgs(files) {
-  Array.from(files).forEach(f => {
-    if(!f.type.startsWith('image/')) return;
-    const r = new FileReader();
-    r.onload = ev => {
-      uploadedImgs.push({name:f.name, data:ev.target.result, type:f.type});
-      renderImgs();
-    };
-    r.readAsDataURL(f);
-  });
-}
-
-function renderImgs() {
-  const grid = document.getElementById('imgGrid');
-  grid.innerHTML = '';
-  uploadedImgs.forEach((img,i) => {
-    const d = document.createElement('div');
-    d.className = 'img-thumb';
-    d.innerHTML = `<img src="${img.data}" title="${img.name}"/><button class="rm" onclick="removeImg(${i})">✕</button>`;
-    d.querySelector('img').onclick = () => { document.getElementById('imgUrl').value = img.data; };
-    grid.appendChild(d);
-  });
-  document.getElementById('imgSendCard').style.display = uploadedImgs.length ? 'block' : 'none';
-}
-
-function removeImg(i) { uploadedImgs.splice(i,1); renderImgs(); }
-
-async function sendImage() {
-  const url = document.getElementById('imgUrl').value.trim();
-  const caption = document.getElementById('imgCaption').value.trim();
-  if(!url){showStatus('imgStatus','⚠️ No image URL provided','err');return;}
-  const bn = document.getElementById('botName')?.value || 'Hold-My-Load Bot';
-  const payload = {
-    username: bn,
-    embeds:[{
-      description: caption || null,
-      image:{url},
-      color: sevColors['info'],
-      footer:{text:'Hold-My-Load Image • '+new Date().toLocaleString()},
-      timestamp: new Date().toISOString()
-    }]
-  };
-  showStatus('imgStatus','🔄 Sending...','info');
-  const r = await postDiscord(payload);
-  showStatus('imgStatus', r.ok ? '✅ Image sent to Discord!' : '❌ '+r.err, r.ok?'ok':'err');
-}
-
-// Init
-loadTemplate('down');
-updatePreview();
 </script>
 </body>
 </html>
